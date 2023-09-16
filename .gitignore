@@ -1,0 +1,43 @@
+# Archivos generados por Python
+__pycache__/
+*.pyc
+
+# Carpeta virtualenv (si la usas)
+venv/
+env/
+.venv/
+
+# Carpeta de dependencias
+lib/
+lib64/
+
+# Archivos generados por IDEs
+.vscode/
+.idea/
+
+# Archivos de configuración locales (por ejemplo, para PyCharm)
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# Carpeta de datos de prueba (puede variar según tu proyecto)
+data/
+
+# Archivo de registro
+logs/
+
+# Archivos de configuración de sistema
+*.log
+
+# Archivos de caché
+*.cache
+
+# Carpeta de construcción
+build/
+
+# Carpeta de distribución (por ejemplo, dist/)
+dist/
+
+# Carpeta de paquetes (por ejemplo, site-packages)
+__pycache__/
