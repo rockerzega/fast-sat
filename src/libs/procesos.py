@@ -5,6 +5,7 @@ from selenium.webdriver import ActionChains
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service as ChromeService
 from webdriver_manager.chrome import ChromeDriverManager
+from src.libs.interface import Certificate
 
 def driver_init():
     # Inicializar el driver
@@ -20,7 +21,7 @@ def driver_init():
       )
     return driver
 
-def login(driver):
+def login(driver, user: Certificate):
   driver.get("https://portalcfdi.facturaelectronica.sat.gob.mx/")
   buttonFiel = driver.find_element(By.ID, "buttonFiel")
   # wait_until_element_visible(buttonFiel)
@@ -40,7 +41,7 @@ def login(driver):
   filePrivateKey = driver.find_element(By.ID, "filePrivateKey")
   filePrivateKey.send_keys("/home/rockerzega/files/UME200911GE5.key")
   txtPassword = driver.find_element(By.ID, 'privateKeyPassword')
-  txtPassword.send_keys('UpContaMx20')
+  txtPassword.send_keys(user.password)
   wait(5)
   buttonSubmit = driver.find_element(By.ID, 'submit')
   ActionChains(driver) \
