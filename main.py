@@ -18,4 +18,4 @@ if __name__ == "__main__":
     import uvicorn
 
     # Ejecutar la aplicación con Uvicorn en el puerto especificado en las configuraciones
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run('main:app', host="0.0.0.0", port=8000, reload=True)

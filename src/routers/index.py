@@ -1,6 +1,8 @@
 from fastapi import APIRouter, Depends
 from config.settings import settings
 from typing import List
+from src.libs.interface import DataClient
+from src.libs.procesos import driver_init, login
 
 # Crear una instancia del enrutador APIRouter
 router = APIRouter()
@@ -28,3 +30,9 @@ async def get_item(item_id: int):
 # @router.get("/secure/")
 # async def secure_route(current_user: dict = Depends(get_current_user)):
 #     return {"message": "This is a secure route", "user": current_user}
+
+@router.post('/issued')
+async def issued(req: DataClient):
+    driver = driver_init()
+    login(driver)
+    return { "content": req}

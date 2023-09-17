@@ -1,7 +1,7 @@
 from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
-  app_name: str = "Mi FastAPI Backend"
+  app_name: str = "API SAT"
   debug: bool = False
   database_url: str = ''
   secret_key: str = ''
