@@ -34,5 +34,5 @@ async def get_item(item_id: int):
 @router.post('/issued')
 async def issued(req: DataClient):
     driver = driver_init()
-    login(driver)
+    login(driver, req)
     return { "content": req}
