@@ -57,9 +57,9 @@ def login(driver, user: Certificate):
   except ValueError as error:
     print(error)
     raise error
-  finally:
-    delete_file('UME200911GE5.cer')
-    delete_file('UME200911GE5.key')
+  # finally:
+  #   delete_file('UME200911GE5.cer')
+  #   delete_file('UME200911GE5.key')
 
 
 def issued(driver, body: DateFind):
