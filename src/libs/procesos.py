@@ -68,8 +68,14 @@ def issued(driver, body: DateFind):
     optionClick = driver.find_element(By.XPATH, '//a[@href="ConsultaEmisor.aspx"]')
     optionClick.click()
     is_complete_load(driver)
-    optionClick = driver.find_element(By.ID, 'ctl00_MainContent_RdoFechas')
-    optionClick.click()
+    if not element_exists(driver, (By.ID, 'ctl00_MainContent_RdoFechas')):
+      raise ValueError('No se ha cargado el elemento')
+    wait()
+    print('Se va a dar clic')
+    # optionClick = driver.find_element(By.ID, 'ctl00_MainContent_RdoFechas')
+    # optionClick.click()
+    driver.execute_script("document.getElementById('ctl00_MainContent_RdoFechas').click()")
+    print('Se ha dado clic')
     wait()
     driver.execute_script(f"updateDateField('ctl00$MainContent$CldFechaInicial2$Calendario_text', '{body.fechaInicio}');")
     driver.execute_script(f"updateDateField('ctl00$MainContent$CldFechaFinal2$Calendario_text', '{body.fechaFin}');")
@@ -85,8 +91,8 @@ def issued(driver, body: DateFind):
     # ContenedorDinamico
     contenidoBusqueda = driver.find_element(By.ID, "ContenedorDinamico")
     contenido = contenidoBusqueda.get_attribute("innerHTML")
-    with open("contenido.html", "w", encoding="utf-8") as archivo:
-      archivo.write(contenido)
+    # with open("contenido.html", "w", encoding="utf-8") as archivo:
+    #   archivo.write(contenido)
     response = convert(contenidoBusqueda)
     return response
   # wait(10)

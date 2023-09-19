@@ -1,4 +1,4 @@
-from os import path, remove
+from os import path, remove, makedirs
 from base64 import b64decode
 
 def own_dir() -> str:
@@ -11,7 +11,11 @@ def create_file(b64: str, name_file: str):
 
     # Obtener la ruta al directorio data/ desde la raíz del proyecto
     path_file = own_dir()
-
+    
+    # Crea la carpeta data/ si no existe
+    if not path.exists(path_file):
+      makedirs(path_file)
+      
     # Construir la ruta completa al archivo de salida
     out_file = path.join(path_file, name_file)
 
