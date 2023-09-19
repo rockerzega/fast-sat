@@ -4,9 +4,9 @@ from selenium.webdriver import Chrome
 from selenium.webdriver.common.by import By
 from selenium.webdriver import ActionChains
 from src.libs.files import create_file, own_dir, delete_file
-from selenium.webdriver.support.ui import Select, WebDriverWait
+from selenium.webdriver.support.ui import Select
 from selenium.webdriver.chrome.options import Options
-from src.libs.interface import Certificate, DataClient, DateFind
+from src.libs.interface import Certificate, DateFind
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.service import Service as ChromeService
 from time import time
@@ -14,10 +14,10 @@ from time import time
 def driver_init():
     # Inicializar el driver
     chrome_options = Options()
-    # chrome_options.add_argument("--headless")
-    # chrome_options.add_argument("--disable-gpu")
-    # chrome_options.add_argument("--no-sandbox")
-    # chrome_options.add_argument("--disable-dev-shm-usage")
+    chrome_options.add_argument("--headless")
+    chrome_options.add_argument("--disable-gpu")
+    chrome_options.add_argument("--no-sandbox")
+    chrome_options.add_argument("--disable-dev-shm-usage")
     chrome_options.page_load_strategy = 'normal'
     driver = Chrome(
         service = ChromeService(ChromeDriverManager().install()),
@@ -42,11 +42,11 @@ def login(driver, user: Certificate):
     fileCertificate = driver.find_element(By.ID, "fileCertificate")
     print(fileCertificate.is_displayed())
     file_path = own_dir()
-    create_file(user.certificate, 'UME200911GE5.cer')
-    create_file(user.key, 'UME200911GE5.key')
-    fileCertificate.send_keys(path.join(file_path, 'UME200911GE5.cer'))
+    create_file(user.certificate, f'{user.instance}.cer')
+    create_file(user.key, f'{user.instance}.key')
+    fileCertificate.send_keys(path.join(file_path, f'{user.instance}.cer'))
     filePrivateKey = driver.find_element(By.ID, "filePrivateKey")
-    filePrivateKey.send_keys(path.join(file_path, 'UME200911GE5.key'))
+    filePrivateKey.send_keys(path.join(file_path, f'{user.instance}.key'))
     txtPassword = driver.find_element(By.ID, 'privateKeyPassword')
     txtPassword.send_keys(user.password)
     wait(10)
@@ -57,9 +57,9 @@ def login(driver, user: Certificate):
   except ValueError as error:
     print(error)
     raise error
-  # finally:
-  #   delete_file('UME200911GE5.cer')
-  #   delete_file('UME200911GE5.key')
+  finally:
+    delete_file(f'{user.instance}.cer')
+    delete_file(f'{user.instance}.key')
 
 
 def issued(driver, body: DateFind):
