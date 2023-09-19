@@ -67,6 +67,10 @@ def login(driver, user: Certificate):
 def issued(driver, body: DateFind):
   try:
     is_complete_load(driver)
+    wait()
+    curr = 'https://portalcfdi.facturaelectronica.sat.gob.mx/'
+    if driver.current_url != curr:
+      raise ValueError('El servicio sat no se encentra disponible')
     optionClick = driver.find_element(By.XPATH, '//a[@href="ConsultaEmisor.aspx"]')
     optionClick.click()
     is_complete_load(driver)
@@ -87,6 +91,10 @@ def issued(driver, body: DateFind):
     btnBuscar = driver.find_element(By.ID, 'ctl00_MainContent_BtnBusqueda')
     btnBuscar.click()
     wait()
+    contentResult = driver.find_element(By.ID, 'ctl00_MainContent_PnlResultados')
+    if not contentResult.is_displayed():
+      print('no tiene datos')
+      pass
     # DivContenedor
     # ContenedorDinamico
     contenidoBusqueda = driver.find_element(By.ID, "ContenedorDinamico")
@@ -97,7 +105,7 @@ def issued(driver, body: DateFind):
     return response
   # wait(10)
   except ValueError as error:
-    raise (error)
+    return [{"message": f'Error: {str(error)}'}]
 
 def received(driver, body: DateFind):
   response = []
