@@ -1,6 +1,7 @@
 from os import path
 from src.libs.utils import wait, element_exists, element_view, is_complete_load, convert
 from selenium.webdriver import Chrome
+from datetime import datetime, timedelta
 from selenium.webdriver.common.by import By
 from selenium.webdriver import ActionChains
 from src.libs.files import create_file, own_dir, delete_file
@@ -18,6 +19,7 @@ def driver_init():
     chrome_options.add_argument("--disable-gpu")
     chrome_options.add_argument("--no-sandbox")
     chrome_options.add_argument("--disable-dev-shm-usage")
+    # chrome_options.add_argument('--start-maximized')
     chrome_options.page_load_strategy = 'normal'
     driver = Chrome(
         service = ChromeService(ChromeDriverManager().install()),
@@ -71,11 +73,9 @@ def issued(driver, body: DateFind):
     if not element_exists(driver, (By.ID, 'ctl00_MainContent_RdoFechas')):
       raise ValueError('No se ha cargado el elemento')
     wait()
-    print('Se va a dar clic')
     # optionClick = driver.find_element(By.ID, 'ctl00_MainContent_RdoFechas')
     # optionClick.click()
     driver.execute_script("document.getElementById('ctl00_MainContent_RdoFechas').click()")
-    print('Se ha dado clic')
     wait()
     driver.execute_script(f"updateDateField('ctl00$MainContent$CldFechaInicial2$Calendario_text', '{body.fechaInicio}');")
     driver.execute_script(f"updateDateField('ctl00$MainContent$CldFechaFinal2$Calendario_text', '{body.fechaFin}');")
@@ -99,23 +99,65 @@ def issued(driver, body: DateFind):
   except ValueError as error:
     raise (error)
 
-def prueba_tiempo(driver):
-  # url = 'https://www.blackberry.com/la/es'
-  url = 'https://www.claro.com.ec'
-  driver.get(url)
+def received(driver, body: DateFind):
+  response = []
+  ultimo = datetime.strptime(body.fechaInicio , '%d/%m/%Y')
   try:
-    inicio = time()
-    if element_exists(driver, (By.CLASS_NAME, 'cyber-card')):
-      print('Elemento encontrado')
-    else:
-      print('Elemento no se ha cargado')
-  except:
-    print('Error al iniciar sesion')
-  finally:
-    fin = time()
-    print('Tiempo de ejecucion: ', fin - inicio)
-
-
+    is_complete_load(driver)
+    wait()
+    curr = 'https://portalcfdi.facturaelectronica.sat.gob.mx/'
+    if driver.current_url != curr:
+      raise ValueError('El servicio sat no se encentra disponible')
+    optionClick = driver.find_element(By.XPATH, '//a[@href="ConsultaReceptor.aspx"]')
+    optionClick.click()
+    is_complete_load(driver)
+    if not element_exists(driver, (By.ID, 'ctl00_MainContent_RdoFechas')):
+      raise ValueError('No se ha cargado el elemento')
+    wait()
+    optionClick = driver.find_element(By.ID, 'ctl00_MainContent_RdoFechas')
+    optionClick.click()
+    # driver.execute_script("document.getElementById('ctl00_MainContent_RdoFechas').click()")
+    wait(5)
+    fechaInicio = ultimo
+    iteraciones = datetime.strptime(body.fechaFin, '%d/%m/%Y') - fechaInicio
+    for i in range(iteraciones.days + 1):
+      actual = fechaInicio + timedelta(days=i)
+      ultimo = actual
+      fecha = actual.strftime("%d/%m/%Y").split('/')
+      if actual.year != datetime.now().year:
+        selAnio = driver.find_element(By.ID, 'DdlAnio')
+        selecAnio = Select(selAnio)
+        selecAnio.select_by_value(str(int(fecha[2])))
+      selMes = driver.find_element(By.ID, 'ctl00_MainContent_CldFecha_DdlMes')
+      selecMes = Select(selMes)
+      selecMes.select_by_value(str(int(fecha[1])))
+      selDia = driver.find_element(By.ID, 'ctl00_MainContent_CldFecha_DdlDia')
+      selecDia = Select(selDia)
+      selecDia.select_by_value(str(int(fecha[0])))
+      wait()
+      if i == 0:
+        selStatus = driver.find_element(By.ID, 'ctl00_MainContent_DdlEstadoComprobante')
+        selecStatus = Select(selStatus)
+        selecStatus.select_by_value('0')
+        wait(2)
+      btnBuscar = driver.find_element(By.NAME, 'ctl00$MainContent$BtnBusqueda')
+      btnBuscar.click()
+      wait()
+      contentResult = driver.find_element(By.ID, 'ctl00_MainContent_PnlResultados')
+      if not contentResult.is_displayed():
+        print('no tiene datos')
+        pass
+      # DivContenedor
+      # ContenedorDinamico
+      contenidoBusqueda = driver.find_element(By.ID, "ContenedorDinamico")
+      # contenido = contenidoBusqueda.get_attribute("innerHTML")
+      # with open("contenido.html", "w", encoding="utf-8") as archivo:
+      #   archivo.write(contenido)
+      response.extend(convert(contenidoBusqueda))
+    return response
+  except ValueError as error:
+    return response.append({"message": str(error), "ultimaFecha": ultimo})
+  
 def logout(driver):
   btnExit = driver.find_element(By.ID, 'anchorClose')
   ActionChains(driver) \
