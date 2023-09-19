@@ -1,8 +1,9 @@
 from fastapi import APIRouter, Depends
 from config.settings import settings
 from typing import List
+from src.libs.files import own_dir
 from src.libs.interface import DataClient
-from src.libs.procesos import driver_init, login
+from src.libs.procesos import driver_init, login, prueba_tiempo, issued
 
 # Crear una instancia del enrutador APIRouter
 router = APIRouter()
@@ -33,6 +34,26 @@ async def get_item(item_id: int):
 
 @router.post('/issued')
 async def issued(req: DataClient):
+  try:
     driver = driver_init()
     login(driver, req)
-    return { "content": req}
+    response = issued(driver,req)
+    driver.close()
+    driver.quit()
+    return { "data": response }
+  except ValueError as error:
+    return { "message": error}
+  # finally:
+  #    driver.close()
+  #    driver.quit()
+
+@router.get('/test')
+async def test():
+    browser = driver_init()
+    prueba_tiempo(browser)
+    return { "content": 'test'}
+
+
+@router.get('/ruta')
+async def ruta():
+  return { "content": own_dir()}

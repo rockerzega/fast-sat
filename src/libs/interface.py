@@ -12,3 +12,7 @@ class Certificate(BaseModel):
   certificate: str
   key: str
   password: str
+
+class DateFind(BaseModel):
+  fechaInicio: str
+  fechaFin: str

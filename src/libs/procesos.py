@@ -1,14 +1,15 @@
 from os import path
-from src.libs.utils import wait
+from src.libs.utils import wait, element_exists, element_view, is_complete_load, convert
 from selenium.webdriver import Chrome
 from selenium.webdriver.common.by import By
 from selenium.webdriver import ActionChains
-from src.libs.files import create_file, own_dir
-from selenium.webdriver.support.ui import Select
+from src.libs.files import create_file, own_dir, delete_file
+from selenium.webdriver.support.ui import Select, WebDriverWait
 from selenium.webdriver.chrome.options import Options
-from src.libs.interface import Certificate, DataClient
+from src.libs.interface import Certificate, DataClient, DateFind
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.service import Service as ChromeService
+from time import time
 
 def driver_init():
     # Inicializar el driver
@@ -26,63 +27,91 @@ def driver_init():
 
 def login(driver, user: Certificate):
   driver.get("https://portalcfdi.facturaelectronica.sat.gob.mx/")
-  buttonFiel = driver.find_element(By.ID, "buttonFiel")
-  # wait_until_element_visible(buttonFiel)
-  wait(5)
-  # buttonFiel.click()
-  ActionChains(driver) \
-    .click(buttonFiel) \
-    .perform()
-  # is_complete_load(driver)
-  wait(10)
-  fileCertificate = driver.find_element(By.ID, "fileCertificate")
-  print('FileCertificate is visible? : ', fileCertificate.is_displayed())
-  # wait_until_element_visible(fileCertificate)
-  # is_visible(driver, fileCertificate)
-  file_path = own_dir()
-  print(file_path)
-  create_file(user.certificate, 'UME200911GE5.cer')
-  create_file(user.key, 'UME200911GE5.key')
-  fileCertificate.send_keys(path.join(file_path, 'UME200911GE5.cer'))
-  filePrivateKey = driver.find_element(By.ID, "filePrivateKey")
-  filePrivateKey.send_keys(path.join(file_path, 'UME200911GE5.key'))
-  txtPassword = driver.find_element(By.ID, 'privateKeyPassword')
-  txtPassword.send_keys(user.password)
-  buttonSubmit = driver.find_element(By.ID, 'submit')
-  ActionChains(driver) \
-    .click(buttonSubmit) \
-    .perform()
+  try:
+    if not element_view(driver, (By.ID, "buttonFiel")):
+      raise ValueError('No se ha cargado el elemento')
+    buttonFiel = driver.find_element(By.ID, "buttonFiel")
+    ActionChains(driver) \
+      .click(buttonFiel) \
+      .perform()
+    # is_complete_load(driver)
+    wait()
+    # if not element_exists(driver, (By.ID, "fileCertificate")):
+    #   print('no se ha cargado el elemento')
+    #   raise ValueError('No se ha cargado el elemento')
+    fileCertificate = driver.find_element(By.ID, "fileCertificate")
+    print(fileCertificate.is_displayed())
+    file_path = own_dir()
+    create_file(user.certificate, 'UME200911GE5.cer')
+    create_file(user.key, 'UME200911GE5.key')
+    fileCertificate.send_keys(path.join(file_path, 'UME200911GE5.cer'))
+    filePrivateKey = driver.find_element(By.ID, "filePrivateKey")
+    filePrivateKey.send_keys(path.join(file_path, 'UME200911GE5.key'))
+    txtPassword = driver.find_element(By.ID, 'privateKeyPassword')
+    txtPassword.send_keys(user.password)
+    wait(10)
+    buttonSubmit = driver.find_element(By.ID, 'submit')
+    ActionChains(driver) \
+      .click(buttonSubmit) \
+      .perform()
+  except ValueError as error:
+    print(error)
+    raise error
+  finally:
+    delete_file('UME200911GE5.cer')
+    delete_file('UME200911GE5.key')
 
 
-def issued(driver, body: DataClient):
-  print('esta es la data que ha llegado')
-  print(type(body.fechaInicio), ' : fechaInicio : ', body.fechaInicio )
-  print(type(body.fechaFin), ' : fechaFin : ', body.fechaFin)
-  optionClick = driver.find_element(By.XPATH, '//a[@href="ConsultaEmisor.aspx"]')
-  is_complete_load(driver)
-  is_visible(driver, optionClick)
-  optionClick.click()
-  wait(5)
-  optionClick = driver.find_element(By.ID, 'ctl00_MainContent_RdoFechas')
-  wait_until_element_visible(optionClick)
-  optionClick.click()
-  wait(5)
-  driver.execute_script(f"updateDateField('ctl00$MainContent$CldFechaInicial2$Calendario_text', '{body.fechaInicio}');")
-  driver.execute_script(f"updateDateField('ctl00$MainContent$CldFechaFinal2$Calendario_text', '{body.fechaFin}');")
-  wait(2)
-  tipoComprobante = driver.find_element(By.ID, 'ctl00_MainContent_DdlEstadoComprobante')
-  seleccionado = Select(tipoComprobante)
-  seleccionado.select_by_value('0')
-  wait(2)
-  btnBuscar = driver.find_element(By.ID, 'ctl00_MainContent_BtnBusqueda')
-  btnBuscar.click()
-  wait(10)
-  # DivContenedor
-  # ContenedorDinamico
-  contenidoBusqueda = driver.find_element(By.ID, "ContenedorDinamico")
-  contenido = contenidoBusqueda.get_attribute("innerHTML")
-  with open("contenido.html", "w", encoding="utf-8") as archivo:
-    archivo.write(contenido)
-  response = convert(contenidoBusqueda)
-  return response
+def issued(driver, body: DateFind):
+  try:
+    is_complete_load(driver)
+    optionClick = driver.find_element(By.XPATH, '//a[@href="ConsultaEmisor.aspx"]')
+    optionClick.click()
+    is_complete_load(driver)
+    optionClick = driver.find_element(By.ID, 'ctl00_MainContent_RdoFechas')
+    optionClick.click()
+    wait()
+    driver.execute_script(f"updateDateField('ctl00$MainContent$CldFechaInicial2$Calendario_text', '{body.fechaInicio}');")
+    driver.execute_script(f"updateDateField('ctl00$MainContent$CldFechaFinal2$Calendario_text', '{body.fechaFin}');")
+    wait(2)
+    tipoComprobante = driver.find_element(By.ID, 'ctl00_MainContent_DdlEstadoComprobante')
+    seleccionado = Select(tipoComprobante)
+    seleccionado.select_by_value('0')
+    wait(2)
+    btnBuscar = driver.find_element(By.ID, 'ctl00_MainContent_BtnBusqueda')
+    btnBuscar.click()
+    wait()
+    # DivContenedor
+    # ContenedorDinamico
+    contenidoBusqueda = driver.find_element(By.ID, "ContenedorDinamico")
+    contenido = contenidoBusqueda.get_attribute("innerHTML")
+    with open("contenido.html", "w", encoding="utf-8") as archivo:
+      archivo.write(contenido)
+    response = convert(contenidoBusqueda)
+    return response
   # wait(10)
+  except ValueError as error:
+    raise (error)
+
+def prueba_tiempo(driver):
+  # url = 'https://www.blackberry.com/la/es'
+  url = 'https://www.claro.com.ec'
+  driver.get(url)
+  try:
+    inicio = time()
+    if element_exists(driver, (By.CLASS_NAME, 'cyber-card')):
+      print('Elemento encontrado')
+    else:
+      print('Elemento no se ha cargado')
+  except:
+    print('Error al iniciar sesion')
+  finally:
+    fin = time()
+    print('Tiempo de ejecucion: ', fin - inicio)
+
+
+def logout(driver):
+  btnExit = driver.find_element(By.ID, 'anchorClose')
+  ActionChains(driver) \
+    .click(btnExit) \
+    .perform()
