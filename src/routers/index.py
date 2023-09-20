@@ -30,7 +30,6 @@ async def emitidos(req: DataClient):
 
 @router.post('/received')
 async def recibidos(req: DataClient):
-  print(req)
   try:
     driver = driver_init()
     login(driver, req)
