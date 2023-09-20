@@ -1,5 +1,6 @@
 from time import sleep
 from random import randint
+from src.libs.interface import Tipo
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -53,15 +54,16 @@ KEYS = [
   'folioSustitcion'
 ]
 
-def convert(content):
+def convert(content, tipo: Tipo):
   data = []
   try :
+    inicio = 5 if tipo == Tipo.issued else 1
     table = content.find_elements(By.XPATH, "//*[@id='ctl00_MainContent_tblResult']/tbody/child::tr")
     for rows in table[1:]:
       elemento = {}
       items = rows.find_elements(By.TAG_NAME, 'span')
       i = 0
-      for item in items[5:]:
+      for item in items[inicio:]:
         elemento[KEYS[i]] = item.text
         i = i + 1
       data.append(elemento)

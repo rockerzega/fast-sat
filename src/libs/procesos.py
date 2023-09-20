@@ -1,16 +1,17 @@
 from os import path
-from src.libs.utils import wait, element_exists, element_view, is_complete_load, convert
+from src.libs.interface import Tipo
 from selenium.webdriver import Chrome
 from datetime import datetime, timedelta
 from selenium.webdriver.common.by import By
 from selenium.webdriver import ActionChains
-from src.libs.files import create_file, own_dir, delete_file
 from selenium.webdriver.support.ui import Select
-from selenium.webdriver.chrome.options import Options
 from src.libs.interface import Certificate, DateFind
+from selenium.webdriver.chrome.options import Options
 from webdriver_manager.chrome import ChromeDriverManager
+from src.libs.files import create_file, own_dir, delete_file
+from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.chrome.service import Service as ChromeService
-from time import time
+from src.libs.utils import wait, element_exists, element_view, is_complete_load, convert
 
 def driver_init():
     # Inicializar el driver
@@ -56,6 +57,8 @@ def login(driver, user: Certificate):
     ActionChains(driver) \
       .click(buttonSubmit) \
       .perform()
+  except NoSuchElementException:
+    raise ValueError('No se ha cargado el elemento')  
   except ValueError as error:
     print(error)
     raise error
@@ -94,14 +97,14 @@ def issued(driver, body: DateFind):
     contentResult = driver.find_element(By.ID, 'ctl00_MainContent_PnlResultados')
     if not contentResult.is_displayed():
       print('no tiene datos')
-      pass
+      return []
     # DivContenedor
     # ContenedorDinamico
     contenidoBusqueda = driver.find_element(By.ID, "ContenedorDinamico")
-    contenido = contenidoBusqueda.get_attribute("innerHTML")
+    # contenido = contenidoBusqueda.get_attribute("innerHTML")
     # with open("contenido.html", "w", encoding="utf-8") as archivo:
     #   archivo.write(contenido)
-    response = convert(contenidoBusqueda)
+    response = convert(contenidoBusqueda, Tipo.issued)
     return response
   # wait(10)
   except ValueError as error:
@@ -161,7 +164,7 @@ def received(driver, body: DateFind):
       # contenido = contenidoBusqueda.get_attribute("innerHTML")
       # with open("contenido.html", "w", encoding="utf-8") as archivo:
       #   archivo.write(contenido)
-      response.extend(convert(contenidoBusqueda))
+      response.extend(convert(contenidoBusqueda, Tipo.received))
     return response
   except ValueError as error:
     return response.append({"message": str(error), "ultimaFecha": ultimo})

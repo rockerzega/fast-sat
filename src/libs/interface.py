@@ -1,5 +1,6 @@
-from pydantic import BaseModel
+from enum import Enum
 from typing import Optional
+from pydantic import BaseModel
 
 class DataClient(BaseModel):
   fechaInicio: str
@@ -18,3 +19,7 @@ class Certificate(BaseModel):
 class DateFind(BaseModel):
   fechaInicio: str
   fechaFin: str
+
+class Tipo(Enum):
+    issued = 'issued'
+    received = 'received'
