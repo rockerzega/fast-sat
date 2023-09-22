@@ -16,11 +16,11 @@ from src.libs.utils import wait, element_exists, element_view, is_complete_load,
 def driver_init():
     # Inicializar el driver
     chrome_options = Options()
-    chrome_options.add_argument("--headless")
-    chrome_options.add_argument("--disable-gpu")
-    chrome_options.add_argument("--no-sandbox")
-    chrome_options.add_argument("--disable-dev-shm-usage")
-    # chrome_options.add_argument('--start-maximized')
+    # chrome_options.add_argument("--headless")
+    # chrome_options.add_argument("--disable-gpu")
+    # chrome_options.add_argument("--no-sandbox")
+    # chrome_options.add_argument("--disable-dev-shm-usage")
+    chrome_options.add_argument('--start-maximized')
     chrome_options.page_load_strategy = 'normal'
     driver = Chrome(
         service = ChromeService(ChromeDriverManager().install()),

@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from src.routers import index
+from src.routers import index, firmas
 from config.settings import settings
 
 # Crear una instancia de la aplicación FastAPI
@@ -13,6 +13,8 @@ app = FastAPI(
 
 # Agregar el enrutador APIRouter al punto de montaje
 app.include_router(index.router, prefix="/api")
+app.include_router(firmas.router, prefix="/firmas")
+
 
 if __name__ == "__main__":
     import uvicorn
