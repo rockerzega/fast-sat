@@ -231,6 +231,12 @@ def secundario (driver):
     driver.find_element(By.CSS_SELECTOR, ".mt-5 > .text-white").click()
     # 51 | click | css=.text-white | 
     driver.find_element(By.CSS_SELECTOR, ".text-white").click()
-    wait(10)
+    # 52 | click | xpath=label[contains(., 'Click aquí')] |
+    driver.find_element(By.XPATH, "//label[contains(., 'Click aquí')]").click()
+    # 53 | upload file | css=input[type="file"]
+    file_input_element = driver.find_element(By.CSS_SELECTOR, 'input[type="file"]')
+    archivo_a_cargar = '/home/rockerzega/Imágenes/aprobado.jpg'
+    file_input_element.send_keys(archivo_a_cargar)
+    wait(40)
   except Exception as err:
     print('error: ', err)
