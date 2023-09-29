@@ -10,7 +10,7 @@ router = APIRouter()
 # Ruta para obtener información de la aplicación
 @router.get("/info")
 async def get_app_info():
-    return {"app_name": settings.app_name, "version": "1.0"}
+  return {"app_name": settings.app_name, "version": "1.0"}
 
 @router.post('/issued')
 async def emitidos(req: DataClient):
@@ -21,6 +21,7 @@ async def emitidos(req: DataClient):
     logout(driver)
     driver.close()
     driver.quit()
+    print(response)
     return { "data": response }
   except ValueError as error:
     return { "message": error}

@@ -1,0 +1,29 @@
+# Excluir archivos y directorios de Python
+__pycache__
+*.pyc
+*.pyo
+
+# Excluir archivos y directorios de dependencias de Python
+venv/
+*.venv/
+
+# Excluir archivos y directorios específicos de tu proyecto
+data/
+
+# Excluir archivos y directorios de herramientas de desarrollo
+.vscode/
+.idea/
+*.git
+*.egg-info/
+
+# Excluir archivos de entorno local o configuración específica de desarrollo
+.env
+.env.local
+
+# Excluir archivos y directorios de compilación
+*.log
+*.db
+
+# Excluir archivos de caché
+.cache/
+__init__.py

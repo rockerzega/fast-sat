@@ -69,8 +69,8 @@ def login(driver, user: Certificate):
 
 def issued(driver, body: DateFind):
   try:
-    is_complete_load(driver)
-    wait()
+    # is_complete_load(driver)
+    wait(10)
     curr = 'https://portalcfdi.facturaelectronica.sat.gob.mx/'
     if driver.current_url != curr:
       raise ValueError('El servicio sat no se encentra disponible')
